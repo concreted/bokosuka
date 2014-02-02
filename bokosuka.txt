@@ -1,0 +1,580 @@
+title bokosuka
+author concrete atelier
+homepage www.concrete-atelier.com
+
+========
+OBJECTS
+========
+
+Background
+LIGHTGREEN GREEN
+11111
+01111
+11101
+11111
+10111
+
+
+Tree
+lightgreen green brown
+00000
+00000
+00000
+..2..
+..2..
+
+Rock
+grey darkgrey lightgrey
+.020.
+00020
+00000
+10001
+11111
+
+PlayerAlone
+lightgrey grey white
+2000.
+2000.
+21111
+.111.
+.1.1.
+
+PlayerPawn
+lightgrey grey white orange
+20033
+20033
+21133
+.111.
+.1.1.
+
+PlayerKnight
+lightgrey grey white white
+20033
+20033
+21133
+.111.
+.1.1.
+
+PlayerArcher
+lightgrey grey white lightgreen
+20033
+20033
+21133
+.111.
+.1.1.
+
+PlayerAll
+lightgrey grey white blue
+20033
+20033
+21133
+.111.
+.1.1.
+
+Pawn
+orange brown lightgrey blue
+2000.
+2000.
+21310
+.131.
+.1.1.
+
+Knight
+grey lightgrey white blue
+2111.
+2101.
+20322
+.0322
+.0.0.
+
+Archer
+orange lightgreen brown lightgrey blue
+.221.
+2121.
+3324.
+2121.
+.221.
+
+EnemyPawn
+orange grey lightgrey red
+2000.
+2000.
+21310
+.131.
+.1.1.
+
+EnemyKnight
+black grey lightgrey red
+2000.
+2010.
+20322
+.0322
+.0.0.
+
+EnemyArcher
+orange darkgreen grey lightgrey red
+.221.
+2121.
+3324.
+2121.
+.221.
+
+Dead
+lightgrey darkgrey
+.000.
+00100
+01110
+00100
+00000
+
+EnemyDead
+black grey
+.000.
+00100
+01110
+00100
+00000
+
+Sight
+blue
+.....
+.0.0.
+..0..
+.0.0.
+.....
+
+EnemySight
+red
+.....
+.0.0.
+..0..
+.0.0.
+.....
+
+
+Shot0
+red
+.....
+.000.
+.000.
+.000.
+.....
+
+Shot1
+red
+.....
+.000.
+.000.
+.000.
+.....
+
+Shot2
+red
+.....
+.000.
+.000.
+.000.
+.....
+
+Shot3
+red
+.....
+.000.
+.000.
+.000.
+.....
+
+Shot4
+red
+.....
+.000.
+.000.
+.000.
+.....
+
+Shot5
+red
+.....
+.000.
+.000.
+.000.
+.....
+
+Shot6
+red
+.....
+.000.
+.000.
+.000.
+.....
+
+Shot7
+red
+.....
+.000.
+.000.
+.000.
+.....
+
+EnemyShot
+red
+..0..
+..0..
+00000
+..0..
+..0..
+
+PlayerShot
+blue
+..0..
+..0..
+00000
+..0..
+..0..
+
+=======
+LEGEND
+=======
+
+. = Background
+# = Tree
+@ = PlayerAlone
+P = Pawn
+K = Knight
+A = Archer
+O = EnemyPawn
+J = EnemyKnight
+L = EnemyArcher
+R = Rock
+
+1 = PlayerPawn
+2 = PlayerKnight
+3 = PlayerArcher
+4 = PlayerAll
+
+
+Enemy = EnemyPawn or EnemyKnight or EnemyArcher
+
+Player = PlayerAlone or PlayerPawn or PlayerKnight or PlayerArcher or PlayerAll
+
+PlayerCommand = PlayerPawn or PlayerKnight or PlayerArcher or PlayerAll
+Ally = Pawn or Knight or Archer
+AllyArmy = Ally or Player
+
+Breakable = Tree
+Unbreakable = Rock
+Obstacle = Breakable or Unbreakable
+
+Shot = Shot0 or Shot1 or Shot2 or Shot3 or Shot4 or Shot5 or Shot6 or Shot7
+ShotHalf = Shot0 or Shot1 or Shot2 or Shot3 
+ShotQuarter = Shot0 or Shot1
+ShotEighth = Shot0
+
+AllyMelee = Pawn or Knight
+EnemyMelee = EnemyPawn or EnemyKnight
+
+Object = AllyArmy or Enemy or Obstacle
+
+Upkeep = Sight or Shot or EnemySight or EnemyShot or PlayerShot
+
+=======
+SOUNDS
+=======
+
+================
+COLLISIONLAYERS
+================
+
+Background
+EnemyDead, Dead
+Player, Ally, Enemy, Breakable, Unbreakable
+Shot, EnemyShot, PlayerShot
+Sight, EnemySight
+
+======
+RULES
+======
+
+( Clear upkeep)
+[ Upkeep ] -> [ No Upkeep ]
+
+( ------ Player turn ------ )
+
+( Random soldier movement)
+[ Stationary Ally ]  ->  [ RandomDir Ally ]
+
+( Soldier auto-formation logic)
+[ Moving Ally | Ally ] -> [ Stationary Ally | Ally ]
+
+( Soldier auto formation move )
+([ Stationary Ally | ... | Enemy ] -> [ > Ally | ... | Enemy ])
+
+( Player flag switching)
+( Stop ally movement)
+
+[ Action PlayerAlone ]  -> [ PlayerPawn]
+[ Action PlayerPawn ]   -> [ PlayerKnight]
+[ Action PlayerKnight ] -> [ PlayerArcher ]
+[ Action PlayerArcher ] -> [ PlayerAll ]
+[ Action PlayerAll ]    -> [ PlayerAlone ]
+
+[ PlayerCommand ] [ Moving Ally ] -> [ PlayerCommand ] [ Stationary Ally ]
+
+( Auto-attack adjacent enemies)
+[ Stationary AllyMelee | Enemy ] -> [ > AllyMelee | Enemy ]
+[ Stationary Archer | Enemy ] -> [ < Archer | Enemy ]
+	(Archers?)
+
+( Player Move + Army Direction)
+[ > PlayerPawn ]   [ Pawn ]   -> [ > PlayerPawn ]   [ > Pawn ]
+[ > PlayerKnight ] [ Knight ] -> [ > PlayerKnight ] [ > Knight ]
+[ > PlayerArcher ] [ Archer ] -> [ > PlayerArcher ] [ > Archer ]
+[ > PlayerAll ]    [ Ally ]   -> [ > PlayerAll ]    [ > Ally ]
+
+[ Moving PlayerCommand ] -> [ Stationary PlayerCommand ]
+
+
+( Battle logic)
+( Player vs. All )
+[ > Player | Enemy No Shot ] -> [ > Player | Enemy random Shot ]
+[ > Player | Enemy ShotHalf ] -> [ > Player | EnemyDead ]
+
+( Melee vs. Pawn ) 
+[ > AllyMelee | EnemyPawn No Shot ] -> [ > AllyMelee | EnemyPawn random Shot]
+[ > AllyMelee | EnemyPawn ShotQuarter ] -> [ > AllyMelee | EnemyDead ]
+
+( Pawn vs. Knight)
+[ > Pawn | EnemyKnight No Shot ] -> [ > Pawn | EnemyKnight random Shot ]
+[ > Pawn | EnemyKnight ShotEighth ] -> [ > Pawn | EnemyDead ]
+
+( Knight vs. Knight)
+[ > Knight | EnemyKnight No Shot] -> [ > Knight | EnemyKnight random Shot ]
+[ > Knight | EnemyKnight ShotQuarter ] -> [ > Knight | EnemyDead ]
+
+( Melee vs. Archer)
+[ > AllyMelee | EnemyArcher ] -> [ > AllyMelee | EnemyDead random Shot ]
+
+( Melee vs. Obstacle )
+[ > AllyMelee | Breakable No Shot ] -> [ > AllyMelee | Breakable random Shot ]
+[ Breakable ShotHalf ] -> [ No Breakable ]
+
+( Archer vs. All )
+
+( ( Basic - infinite distance )
+[ > Archer ] -> [ > Archer > Sight ]
+[ > Sight No Enemy No Obstacle | ] -> [ | > Sight ]
+)
+
+( Archer range: 2+4)
+[ Shot ] -> [ PlayerShot ]
+
+
+[ Stationary Archer | ... | Enemy ] -> [ > Archer Shot0 | ... | Enemy ]
+	( Non-moving archers to be used as sentries - Shot0 used as marker )
+
+[ > Archer | No Obstacle | No Shot ] -> [ > Archer | | > Shot0 ]
+[ > Shot0 No Enemy No Obstacle | ] -> [ | > Shot1 ]
+[ > Shot1 No Enemy No Obstacle | ] -> [ | > Shot2 ]
+[ > Shot2 No Enemy No Obstacle | ] -> [ | > Shot3 ]
+
+[ Moving Archer Shot0 ] -> [ Stationary Archer ]
+	( Keep archer sentries from moving )
+
+[ > Shot ] -> [ Sight ]
+
+[ EnemyPawn Sight No Shot ]   -> [ EnemyPawn Sight random Shot]
+[ EnemyPawn ShotQuarter ] -> [ EnemyDead ]
+
+
+[ EnemyKnight Sight No Shot] -> [ EnemyKnight Sight random Shot ]
+[ EnemyKnight ShotEighth ] -> [ EnemyDead ]
+
+
+[ EnemyArcher Sight No Shot ] -> [ EnemyArcher Sight random Shot ]
+[ EnemyArcher ShotQuarter ] -> [ EnemyDead ]
+
+( ------ End Player Turn ------ )
+
+[ Shot ] -> [ PlayerShot ]
+
+( ------ Enemy Turn ------ )
+
+( Move toward allies ) 
+[ Stationary Enemy | ... | AllyArmy ] -> [ > Enemy | ... | AllyArmy ]
+
+
+( Auto Formation )
+
+[ Stationary EnemyMelee | ... | Stationary EnemyMelee ] -> [ > EnemyMelee | ... | < EnemyMelee ]
+[ Stationary EnemyArcher | ... | Stationary EnemyArcher ] -> [ > EnemyArcher | ... | < EnemyArcher ]
+
+
+( Random move on obstacle collision )
+[ > Enemy | Obstacle ] -> [ Stationary Enemy | Obstacle ]
+[ Stationary Enemy ] -> [ RandomDir Enemy ]
+
+
+( Battle logic)
+( Melee vs. Player )
+[ > EnemyMelee | Player No Shot ] -> [ > EnemyMelee | Player random Shot]
+[ > EnemyMelee | Player ShotEighth ] -> [ > EnemyMelee | Dead ]
+
+( Melee vs. Pawn ) 
+[ > EnemyMelee | Pawn No Shot ] -> [ > EnemyMelee | Pawn random Shot]
+[ > EnemyMelee | Pawn ShotQuarter ] -> [ > EnemyMelee | Dead ]
+
+( Pawn vs. Knight)
+[ > EnemyPawn | Knight No Shot ] -> [ > EnemyPawn | Knight random Shot ]
+[ > EnemyPawn | Knight ShotEighth ] -> [ > EnemyPawn | Dead ]
+
+( Knight vs. Knight)
+[ > EnemyKnight | Knight No Shot] -> [ > EnemyKnight | Knight random Shot ]
+[ > EnemyKnight | Knight ShotQuarter ] -> [ > EnemyKnight | Dead ]
+
+( Melee vs. Archer)
+[ > EnemyMelee | Archer ] -> [ > EnemyMelee | Dead random Shot]
+
+( Melee vs. Obstacle )
+[ > EnemyMelee | Breakable No Shot ] -> [ > EnemyMelee | Breakable random Shot ]
+[ Breakable ShotHalf ] -> [ No Breakable ]
+
+
+( Archer vs. All )
+
+( ( Basic - infinite distance )
+[ > Archer ] -> [ > Archer > Sight ]
+[ > Sight No Enemy No Obstacle | ] -> [ | > Sight ]
+)
+
+( Archer range: 1+4)
+[ Shot ] -> [ EnemyShot ]
+
+[ > EnemyArcher | No Obstacle | No Obstacle No Shot ] -> [ > EnemyArcher | | > Shot0 ]
+[ > Shot0 No Ally No Obstacle | ] -> [ | > Shot1 ]
+[ > Shot1 No Ally No Obstacle | ] -> [ | > Shot2 ]
+[ > Shot2 No Ally No Obstacle | ] -> [ | > Shot3 ]
+
+[ > Shot ] -> [ EnemySight ]
+
+[ Pawn EnemySight ]   -> [ Pawn random Shot]
+[ Pawn ShotQuarter ] -> [ Dead ]
+
+
+[ Knight EnemySight ] -> [ Knight random Shot ]
+[ Knight ShotEighth ] -> [ Dead ]
+
+
+[ Archer EnemySight ] -> [ Archer random Shot ]
+[ Archer ShotQuarter ] -> [ Dead ]
+
+[ Player EnemySight ] -> [ Player random Shot ]
+[ Player ShotEighth ] -> [ Dead ]
+
+( ------ End Enemy Turn ------ )
+
+[ Shot ] -> [ EnemyShot ]
+
+[ EnemyShot ] -> [ No EnemyShot ]
+[ PlayerShot ] -> [ No PlayerShot ]
+
+
+==============
+WINCONDITIONS
+==============
+
+No Enemy 
+
+=======
+LEVELS
+=======
+
+Message You are the army commander.
+Message You are strong in direct combat. Kill the enemy.
+...........
+...........
+...........
+...O....@..
+...........
+...........
+...........
+
+Message Your army is capable but disorganized.
+...............
+...............
+...O....P......
+........P....@.
+.O....K..P.....
+...O.....P.....
+...............
+
+Message You must command your army.
+Message Orange flag commands Pawns.
+
+...............
+...............
+.........PP....
+..OO.....PP....
+...O.....PP.1..
+..OO.....PP....
+.........PP....
+...............
+
+Message White flag commands Knights.
+
+...............
+...............
+...............
+...J.....KK....
+..JJ.....KK.2..
+...J.....KK....
+...............
+...............
+
+Message Green flag commands Archers. 
+Message Archers can't hit close enemies.
+
+.................
+.................
+.................
+..L........AA....
+...........AA.3..
+..L........AA....
+.................
+.................
+
+Message Blue flag commands your whole army.
+
+..........................
+..........................
+.................P........
+..LL...OO........PKA......
+..LL...OO........PKA......
+.......OO........PKA..4...
+.....J...........P........
+.....J....................
+.....J....................
+..........................
+
+Message Press Space to switch between flags.
+
+...........................................
+.....J..........................A..........
+...L.J..........................A..........
+...L.J..........................A..........
+.....J.......L.........R........A..........
+..............LO.......R.............@.....
+....OO.......LLO.......R...................
+.....O........LO.......R.......PP....K.....
+.....OO......LL........R.......PP....K.....
+.......................R.......PP....K.....
+.....OO................R.......PP....K.....
+......O................R...................
+..........###..........R....####...........
+...........###...............####..........
+.........###...............#######.........
+..........###.................###..........
+..........###..............................
+
+
+
+
