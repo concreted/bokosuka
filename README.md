@@ -3,12 +3,7 @@ bokosuka
 
 puzzlescript wargame. based on bokosuka wars for nes.
 
-
-how to play
------------
-
-Open BOKOSUKA.html in an HTML5-compatible browser. 
-
+[play it here] (http://www.puzzlescript.net/play.html?p=771b015ef0ccd0114a65)
 
 to do
 -----
